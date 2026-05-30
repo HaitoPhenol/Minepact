@@ -1,25 +1,40 @@
 class WorldEngine:
     def __init__(self):
         self.state = {
-            player_location: "grass",
-            player_backpack: [],
-            dangerous_level: 0,
-            fortune_level: 0,
+            "player_location": "grass",
+            "player_backpack": [],
+            "dangerous_level": 0,
+            "fortune_level": 0,
+            "hungry_level": 100,
+            "animals": ["rabbit"],
+            "items": [],
+            "weather": "clear",
+            "time": 1830,
         }
 
-    def apply(self, action):
-        white_list = ["move", "attack", "do", "pick", "chat"]
+    def effect(self, event):
+        pass
+
+    def get_state(self):
         pass
 
 class Summarizer:
     def __init__(self):
         pass
 
-    def player_to_event(self, text: str, world_state: dict) -> dict:
-        pass
+    def player_to_event(self, text, world_state):
+        if "forest" in text:
+            return {"type": "move", "target": "forest"}
+        elif "grass" in text:
+            return {"type": "move", "target": "grass"}
+        elif "pick" in text:
+            return {"type": "pick", "target": "rabbit"}
 
-    def spirit_to_event(self, text: str) -> dict:
-        pass
+    def spirit_to_event(self, text):
+        if "rain" in text:
+            return {"type": "weather", "target": "rain"}
+        elif "clear" in text:
+            return {"type": "weather", "target": "clear"}
 
 class SpiritAgent:
     def __init__(self, name):
@@ -28,6 +43,7 @@ class SpiritAgent:
         self.memory = []
         self.favor = 50
         self.max_chat_turns = 3
+        self.language = "Chinese"
 
     def reply(self, world_summary, player_input):
         pass
@@ -38,9 +54,9 @@ class GameEngine:
         self.summarizer = Summarizer()
         self.spirit = SpiritAgent("Aliya")
 
-    def run(self, action):
+    def run(self):
         while True:
-            break
+            action = input(">")
             
     def save(self):
         pass
