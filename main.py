@@ -1,65 +1,50 @@
-class World:
+class WorldEngine:
     def __init__(self):
         self.state = {
-            "location": "grass",
-            "dangerous": 0,
-            "items": ["medicine"],
-            "animals": ["rabbit"]
+            player_location: "grass",
+            player_backpack: [],
+            dangerous_level: 0,
+            fortune_level: 0,
         }
 
-    def action(self, action):
-        if action == "move to forest":
-            self.state["location"] = "forest"
-            self.state["dangerous"] = 5
-        elif action == "move to river":
-            self.state["location"] = "river"
-            self.state["dangerous"] = 2
-        elif action == "hunt rabbit":
-            self.state["items"].append("rabbit meat")
-            self.state["animals"].remove("rabbits")
-            self.state["dangerous"] = 0
-        else:
-            print("Invalid action")
+    def apply(self, action):
+        white_list = ["move", "attack", "do", "pick", "chat"]
+        pass
 
-    def summary(self):
-        return f"at {self.state['location']}, dangerous {self.state['dangerous']}, there are {self.state['animals']} and {self.state['items']}"
+class Summarizer:
+    def __init__(self):
+        pass
 
-class Spirit:
+    def player_to_event(self, text: str, world_state: dict) -> dict:
+        pass
+
+    def spirit_to_event(self, text: str) -> dict:
+        pass
+
+class SpiritAgent:
     def __init__(self, name):
+        self.name = name
+        self.character = ["cute", "Tsundere"]
         self.memory = []
         self.favor = 50
+        self.max_chat_turns = 3
 
     def reply(self, world_summary, player_input):
-        self.memory.append(f"player_input: {player_input}")
-        self.memory.append(f"world_summary: {world_summary}")
-        return f"you just say go to {player_input}, now we are {world_summary}, what should we do?"
+        pass
 
-world = World()
-spirit = Spirit("Aliya")
+class GameEngine:
+    def __init__(self):
+        self.world = WorldEngine()
+        self.summarizer = Summarizer()
+        self.spirit = SpiritAgent("Aliya")
 
-# print(world.summary())
+    def run(self, action):
+        while True:
+            break
+            
+    def save(self):
+        pass
 
-# world.action("move to forest")  
-# print(world.summary())
+    def load(self):
+        pass
 
-# world.action("hunt rabbits")
-# print(world.summary())
-
-while True:
-    p = input("chat:").strip()
-    if p in ["q", "quit"]:
-        print("saving...")
-        break
-    
-    action = ""
-    if "forest" in p:
-        action = "move to forest"
-    elif "river" in p:
-        action = "move to river"
-    else:
-        action = "chat"
-    
-    world.action(action)
-    env = world.summary()
-    r = spirit.reply(env, p)
-    print(f"Aliya:{r}")
