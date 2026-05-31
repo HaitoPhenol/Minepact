@@ -35,7 +35,7 @@ base_payload = {
         },
         {
             "role": "user", "name": "Phenol",
-            "content": "早上好！哇！你的耳朵好可爱！快让我摸摸！"  # User input
+            "content": "早上好！哇！你的耳朵好可爱！快让我摸摸！"  # Default user input message
         }
     ]
 }
