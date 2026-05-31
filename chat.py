@@ -216,44 +216,67 @@ def stress_test(max_consecutive_failures=3, delay=1):
 
 # ==================== Main logic ====================
 
+def single_chat_request(user_input=None):
+    """
+    Perform a single chat request, trying models in order from MODEL_LIST.
+    
+    Args:
+        user_input (str, optional): User input message. If None, prompts user for input.
+    
+    Returns:
+        dict or None: The API response if successful, None otherwise
+    """
+    # Get user input from keyboard if not provided
+    if user_input is None:
+        user_input = input("请输入消息: ")
+    
+    # Update the user message in base_payload
+    base_payload["messages"][1]["content"] = user_input
+    
+    # Normal single request mode
+    result = None
+    used_model = None
+
+    # Try models in order from MODEL_LIST
+    response_time = 0.0
+    for i, model in enumerate(MODEL_LIST):
+        result, resp_time = call_api(model)
+        response_time += resp_time  # Accumulate response time across retries
+        if result is not None:
+            used_model = model
+            break
+        
+        # If not the last model, print retry message
+        if i < len(MODEL_LIST) - 1:
+            print(f"\n🔄 Retrying with next model: {MODEL_LIST[i+1]}")
+
+    # If all models failed, exit
+    if result is None:
+        print("\n❌ All models failed. Exiting.")
+        return None
+    else:
+        # Output response and total tokens
+        response_content = result["choices"][0]["message"]["content"]
+        finish_reason = result["choices"][0].get("finish_reason", "unknown")
+        model_name = result.get("model", used_model)  # Get model name from returned JSON
+        total_tokens = result.get("usage", {}).get("total_tokens", 0)
+        prompt_tokens = result.get("usage", {}).get("prompt_tokens", 0)
+        completion_tokens = result.get("usage", {}).get("completion_tokens", 0)
+        
+        print(f"\n======================= response [{model_name}] =======================\n\n", response_content)
+        
+        print("\n================== result information ==================")
+        print(f"  model = {model_name}")
+        print(f"  finish_reason = {finish_reason}")
+        print(f"  response_time = {response_time:.2f}s")
+        print(f"  input_tokens = {prompt_tokens} | output_tokens = {completion_tokens}")
+        print(f"> total_tokens = {total_tokens} <")
+        print("========================================================")
+        return result
+
+
+# Uncomment the line below to run single chat request directly
+# single_chat_request()
+
 # Uncomment the line below to run stress test
 # stress_test(max_consecutive_failures=3, delay=1)
-
-# Normal single request mode
-result = None
-used_model = None
-
-# Try models in order from MODEL_LIST
-response_time = 0.0
-for i, model in enumerate(MODEL_LIST):
-    result, resp_time = call_api(model)
-    response_time += resp_time  # Accumulate response time across retries
-    if result is not None:
-        used_model = model
-        break
-    
-    # If not the last model, print retry message
-    if i < len(MODEL_LIST) - 1:
-        print(f"\n🔄 Retrying with next model: {MODEL_LIST[i+1]}")
-
-# If all models failed, exit
-if result is None:
-    print("\n❌ All models failed. Exiting.")
-else:
-    # Output response and total tokens
-    response_content = result["choices"][0]["message"]["content"]
-    finish_reason = result["choices"][0].get("finish_reason", "unknown")
-    model_name = result.get("model", used_model)  # Get model name from returned JSON
-    total_tokens = result.get("usage", {}).get("total_tokens", 0)
-    prompt_tokens = result.get("usage", {}).get("prompt_tokens", 0)
-    completion_tokens = result.get("usage", {}).get("completion_tokens", 0)
-    
-    print(f"\n======================= response [{model_name}] =======================\n\n", response_content)
-    
-    print("\n================== result information ==================")
-    print(f"  model = {model_name}")
-    print(f"  finish_reason = {finish_reason}")
-    print(f"  response_time = {response_time:.2f}s")
-    print(f"  input_tokens = {prompt_tokens} | output_tokens = {completion_tokens}")
-    print(f"> total_tokens = {total_tokens} <")
-    print("========================================================")
